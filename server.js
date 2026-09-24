@@ -20,11 +20,12 @@ const NODE_ENV = process.env.NODE_ENV || 'production';
 const PORT = Number(process.env.PORT || 3000);
 const ROOT = process.cwd();
 const PUBLIC = path.join(ROOT, 'public');
-const DATA_DIR = process.env.DATA_DIR || path.join(process.env.HOME || path.dirname(ROOT), 'lokriti-data');
+const DATA_DIR = process.env.DATA_DIR || (process.env.RAILWAY_ENVIRONMENT ? '/data/lokriti-data' : path.join(process.env.HOME || path.dirname(ROOT), 'lokriti-data'));
+const RAILWAY_PUBLIC_DOMAIN = String(process.env.RAILWAY_PUBLIC_DOMAIN || '').trim();
 const UPLOADS = process.env.UPLOAD_DIR || path.join(DATA_DIR, 'uploads');
 const MIGRATIONS_DIR = path.join(ROOT, 'migrations');
-const PRIMARY_HOST = (process.env.PRIMARY_HOST || 'lokritijewels.com').toLowerCase();
-const PUBLIC_BASE_URL = (process.env.PUBLIC_BASE_URL || `https://${PRIMARY_HOST}`).replace(/\/$/, '');
+const PRIMARY_HOST = (process.env.PRIMARY_HOST || (RAILWAY_PUBLIC_DOMAIN ? RAILWAY_PUBLIC_DOMAIN : 'lokritijewels.com')).toLowerCase();
+const PUBLIC_BASE_URL = (process.env.PUBLIC_BASE_URL || (RAILWAY_PUBLIC_DOMAIN ? `https://${RAILWAY_PUBLIC_DOMAIN}` : `https://${PRIMARY_HOST}`)).replace(/\/$/, '');
 const MAX_PRODUCTS_PER_PAGE = 24;
 
 fs.mkdirSync(UPLOADS, { recursive: true });
@@ -38,7 +39,7 @@ function requireProductionSecrets() {
   if (NODE_ENV !== 'production') return;
   const required = ['JWT_SECRET', 'RATE_LIMIT_SECRET'];
   const missing = required.filter(k => !process.env[k] || process.env[k].length < 32);
-  if (missing.length) throw new Error(`Missing/weak production secrets: ${missing.join(', ')}. Set them in Hostinger Environment Variables.`);
+  if (missing.length) throw new Error(`Missing/weak production secrets: ${missing.join(', ')}. Set them in the hosting platform's Environment Variables.`);
 }
 requireProductionSecrets();
 
@@ -82,11 +83,11 @@ app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
 const db = mysql.createPool({
-  host: process.env.DB_HOST,
-  port: Number(process.env.DB_PORT || 3306),
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
+  host: process.env.DB_HOST || process.env.MYSQLHOST,
+  port: Number(process.env.DB_PORT || process.env.MYSQLPORT || 3306),
+  user: process.env.DB_USER || process.env.MYSQLUSER,
+  password: process.env.DB_PASSWORD || process.env.MYSQLPASSWORD,
+  database: process.env.DB_NAME || process.env.MYSQLDATABASE,
   waitForConnections: true,
   connectionLimit: Math.min(20, Math.max(2, Number(process.env.DB_POOL_SIZE || 10))),
   queueLimit: 20,

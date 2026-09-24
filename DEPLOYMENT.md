@@ -1,221 +1,176 @@
-# LOKRITI JEWELS by Aditi — Hostinger deployment
+# LOKRITI JEWELS by Aditi — Railway deployment
 
-This is the **catalogue + editorial + enquiry** edition of the website.
+This package is the Railway-ready version of the catalogue website. The complete application is included at the repository root.
 
-## What is intentionally removed
-
-There is **no online order placement, cart, checkout, payment gateway, Razorpay integration, order table, or customer purchase flow** in this build. The site is for viewing the jewellery world and sending client enquiries.
-
-The public Shop starts empty, exactly as requested. Products can later be added privately through `/admin`.
-
-## 1. Hostinger
-
-Use Hostinger **Node.js Web App** hosting (Business Web Hosting or a Cloud plan with Node.js Web Apps). Select Node.js 20+ for this project. Do **not** simply copy the ZIP into `public_html` as if this were a PHP/static site: the Node application must be created in Hostinger's Node.js Web App deployment flow.
-
-## 2. Upload
-
-In Hostinger: **Websites → Add website → Node.js Web App → Upload your website files**. Upload this ZIP. Hostinger's current Node.js deployment flow supports ZIP upload and lets you configure the entry/start settings before deployment. Keep this structure at the app root:
+## What is included
 
 ```text
 server.js
 package.json
+railway.toml
+nixpacks.toml
+migrations/
 public/
 admin/
+schema.sql
+.env.example
 ```
 
-## 3. Install
+The site remains **catalogue + enquiry only**. There is no cart, checkout, online payment, order placement, or customer purchase flow.
 
-```bash
-npm install --omit=dev
-```
+## 1. GitHub
 
-## 4. MySQL
+Upload/extract the **contents** of this package into the GitHub repository root. Do not upload only the ZIP file.
 
-Create a managed MySQL database in Hostinger. Enter these values in Hostinger Environment Variables:
+At the top level GitHub must show at least:
 
 ```text
-DB_HOST=...
-DB_PORT=3306
-DB_NAME=...
-DB_USER=...
-DB_PASSWORD=...
-DB_POOL_SIZE=10
-DB_SSL=false
+admin/
+migrations/
+public/
+package.json
+railway.toml
+nixpacks.toml
+schema.sql
+server.js
 ```
 
-The application creates its own tables on first start:
+`migrations/` and `public/` must be real folders beside `server.js`.
 
-- `products`
-- `inquiries`
-- `rate_limits`
+## 2. Railway service
 
-There is deliberately **no orders table**.
+Create/select the Node.js service connected to the GitHub repository.
 
-## 5. Admin
-
-Set:
+Railway should detect `package.json` and use the included `railway.toml`. The start command is:
 
 ```text
-ADMIN_EMAIL=admin@lokritijewels.com
-ADMIN_PASSWORD_HASH=<bcrypt hash>
-JWT_SECRET=<long random secret>
-RATE_LIMIT_SECRET=<another long random secret>
+npm start
 ```
 
-Generate a bcrypt password hash with:
+The application listens on Railway's injected `PORT` environment variable.
 
-```bash
-node generate-admin-hash.mjs "YOUR-STRONG-ADMIN-PASSWORD"
-```
+## 3. MySQL
 
-Open the private dashboard directly at:
+Add a Railway MySQL service to the same project.
+
+The application accepts Railway's standard MySQL environment variable names:
 
 ```text
-https://lokritijewels.com/admin
+MYSQLHOST
+MYSQLPORT
+MYSQLDATABASE
+MYSQLUSER
+MYSQLPASSWORD
 ```
 
-It is not linked from public navigation and is marked `noindex,nofollow`.
+It also accepts `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, and `DB_PASSWORD` if variables are mapped manually.
 
-## 6. Start
+On startup the application automatically runs every numbered SQL file in `migrations/` that has not already been applied.
 
-Use these Hostinger build/runtime settings when prompted:
+## 4. Required secrets
 
-- Node.js: **20.x or newer supported version**
-- Build command: `npm install --omit=dev`
-- Start command: `npm start`
-- Entry file (if Hostinger asks): `server.js`
-
-The `start` script in `package.json` runs `node server.js`.
-
-## 7. Domain
-
-Connect your existing GoDaddy domain:
+In the Node.js service Variables, set:
 
 ```text
-lokritijewels.com
+NODE_ENV=production
+JWT_SECRET=<random secret at least 32 characters>
+RATE_LIMIT_SECRET=<different random secret at least 32 characters>
+ADMIN_EMAIL=<your private admin email>
+ADMIN_PASSWORD_HASH=<bcrypt hash of a new strong admin password>
 ```
 
-Do not transfer the domain unless you specifically want to. Point/connect the domain to the Hostinger application using the DNS/nameserver instructions shown by Hostinger.
+Never commit real passwords, JWT secrets, database passwords, or SMTP credentials to GitHub.
 
-Enable HTTPS/SSL and verify both the apex domain and `www` behaviour.
+## 5. Public URL testing
 
-## 8. Images
-
-Editorial photography is bundled under `public/assets/editorial` and `public/assets/home` and is not part of the product catalogue. The eight additional photographs supplied on 19 September 2026 are stored under `public/assets/editorial/user-2026/` and are used only in the homepage editorial display. They are never seeded as products.
-
-Product images uploaded from Admin are:
-
-- rotated using EXIF orientation
-- resized to a maximum working size
-- converted to WebP
-- served with cache headers
-
-For a future multi-instance/high-traffic architecture, set `STORAGE_DRIVER=s3` and configure an S3-compatible object store/CDN. This avoids tying uploaded product media to one application server.
-
-## 9. CDN and scaling
-
-Hostinger's CDN can cache public assets. The application itself is designed to avoid local application state: admin sessions are JWT-based and product/enquiry data is in MySQL.
-
-The Node.js process is therefore much easier to scale horizontally than the earlier SQLite/local-file version. True multi-instance product-media scaling requires shared object storage (`STORAGE_DRIVER=s3`).
-
-This build does **not claim unlimited automatic horizontal autoscaling**. Scaling beyond the capacity of the selected Hostinger service remains a hosting/platform decision.
-
-## 10. SEO
-
-Included:
-
-- unique page titles/descriptions
-- canonical URLs
-- Open Graph metadata
-- Twitter card metadata
-- Organization structured data
-- WebSite structured data on Home
-- dynamic Product structured data on `/products/<slug>`
-- dynamic `/sitemap.xml`
-- `/robots.txt`
-- `/.well-known/security.txt`
-- semantic multi-page URLs
-- product slugs
-- descriptive image alt text
-- `noindex,nofollow` on Admin
-
-After launch, verify the domain in Google Search Console and submit:
+Railway can generate a temporary public domain for the service. For the first test, set:
 
 ```text
-https://lokritijewels.com/sitemap.xml
+PUBLIC_BASE_URL=https://YOUR-RAILWAY-DOMAIN.up.railway.app
+PRIMARY_HOST=YOUR-RAILWAY-DOMAIN.up.railway.app
 ```
 
-## 11. Analytics
-
-Optional. Set:
+After the real domain is connected, change both values to:
 
 ```text
-GA4_ID=G-XXXXXXXXXX
-META_PIXEL_ID=XXXXXXXXXXXXXXX
+PUBLIC_BASE_URL=https://lokritijewels.com
+PRIMARY_HOST=lokritijewels.com
 ```
 
-Leave blank to disable. The public site fetches only these public IDs from `/api/config`; no secret analytics credentials are exposed.
+The application also understands Railway's `RAILWAY_PUBLIC_DOMAIN` as a fallback when `PUBLIC_BASE_URL` is not explicitly set.
 
-## 12. Enquiry email
+## 6. Health check
 
-The contact form always stores enquiries in MySQL. If SMTP values are configured, the server also emails a notification to `NOTIFY_EMAIL`.
+Open:
 
 ```text
-SMTP_HOST=
-SMTP_PORT=587
-SMTP_SECURE=false
-SMTP_USER=
-SMTP_PASS=
-SMTP_FROM=Lokriti Jewels <no-reply@lokritijewels.com>
-NOTIFY_EMAIL=Lokritijewels@gmail.com
+https://YOUR-RAILWAY-DOMAIN.up.railway.app/api/health
 ```
 
-## 13. Pre-launch verification
+A healthy database connection returns JSON containing:
 
-Check all of these after DNS/SSL are live:
+```json
+{"ok":true,"database":"ok"}
+```
 
-- Home loads over HTTPS.
-- Hero slideshow displays all four editorial images.
-- No duplicate LOKRITI JEWELS by Aditi branding.
-- Shop shows the intentional empty state.
-- No editorial image appears as a product.
-- Search opens and closes correctly.
-- Mobile navigation works.
-- All client-care pages open.
-- Phone link `6376275637` works.
-- Email link works.
-- Contact form stores an enquiry.
-- Admin login works.
-- Product creation works.
-- Multiple product images upload and become WebP.
-- Product editing/deletion works.
-- Product detail URL opens and has Product structured data.
-- Sitemap lists static pages and any products.
-- `/robots.txt` is reachable.
-- `/admin` is not linked publicly and is noindex.
-- No cart/checkout/payment/order endpoints exist.
-- `/api/health` reports database `ok`.
+If it reports `starting` or `error`, check the MySQL service and the variables before connecting the custom domain.
 
-## 14. Backups and operations
+## 7. Persistent product uploads
 
-Keep Hostinger backups enabled. Also maintain periodic independent exports/backups of the MySQL database and product media.
+The bundled editorial/home images are part of `public/assets` and do not need a volume.
 
-For serious growth, add:
+Admin-uploaded product images use local storage by default. For those uploads to survive Railway redeploys, attach a Railway Volume to the Node service and mount it at:
 
-- external object storage/CDN
-- application error monitoring
-- uptime monitoring
-- staging environment
-- deployment through GitHub
-- centralized logs
-- stronger admin authentication/2FA
+```text
+/data
+```
+
+The included environment example then uses:
+
+```text
+DATA_DIR=/data/lokriti-data
+UPLOAD_DIR=/data/lokriti-data/uploads
+```
+
+If you do not want a Railway Volume, use S3-compatible storage instead by setting `STORAGE_DRIVER=s3` and its S3 variables. Without either a Volume or object storage, admin-uploaded files on local disk should be treated as temporary.
+
+## 8. Domain
+
+Do not change GoDaddy DNS until the Railway temporary URL works and `/api/health` is healthy.
+
+When the app is working, use Railway's **Custom Domain** screen and copy the exact DNS records Railway provides. Do not invent DNS values.
+
+## 9. Expected website structure
+
+The public website includes:
+
+- Home
+- Shop
+- Bridal
+- Our Story
+- FAQ
+- Contact
+- Shipping
+- Returns
+- Jewellery Care
+- Terms
+- Privacy
+
+The Shop intentionally starts empty. The supplied editorial photographs are not seeded as catalogue products.
+
+## 10. Final test sequence
+
+1. Railway deployment succeeds.
+2. Railway logs show the server listening on the injected port.
+3. `/api/health` returns database `ok`.
+4. Railway public URL opens Home.
+5. Homepage images load.
+6. Navigation works.
+7. Shop shows the intended empty state.
+8. Contact page loads and enquiry storage works.
+9. `/admin` is accessible only directly and is not in public navigation.
+10. Only after the above works, connect `lokritijewels.com` through Railway Custom Domain.
 
 ## Important
 
-The website is intentionally **view-only + enquiry**. If online purchasing is added in the future, it should be treated as a separate engineering phase rather than re-enabling hidden payment code.
-
-## 15. Important deployment clarification
-
-Uploading the ZIP alone does not make the domain live. Hostinger must deploy it as a **Node.js Web App**, install the npm dependencies, start `server.js`, connect the MySQL database, add the environment variables, and attach `lokritijewels.com` to the app. Hostinger's current Node.js Web App flow supports ZIP upload; after deployment, verify the temporary URL before switching the custom domain/production traffic.
-
-The included static assets are already local to the project. The homepage does not depend on Pinterest, PRERTO, or another website to load its editorial photographs.
+This package is for Railway. It is not necessary to put these files into a PHP `public_html` directory. Railway runs `server.js` as a Node.js service.

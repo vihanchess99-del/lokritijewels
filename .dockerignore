@@ -1,0 +1,8 @@
+node_modules
+.env
+.git
+.gitignore
+*.log
+.DS_Store
+lokriti-data
+public/uploads

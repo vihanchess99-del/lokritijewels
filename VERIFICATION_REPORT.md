@@ -18,8 +18,8 @@ Revision: 19 September 2026
 - `/admin` and `/admin/` both route to the private Admin interface.
 - ZIP package structure is self-contained and includes `package.json`, `server.js`, `public/`, `admin/`, `.env.example`, `schema.sql`, and deployment documentation.
 
-## What cannot be truthfully verified before Hostinger configuration
+## What cannot be truthfully verified before Railway configuration
 
-The package cannot be fully end-to-end executed against the user's real Hostinger environment from this workspace because the Hostinger MySQL credentials, Node.js runtime, DNS, SSL, and production environment variables are not available here. Therefore this report does **not** claim that the live database connection, live SMTP, live Sentry, live CDN, DNS, or live Hostinger deployment have already been tested.
+The package cannot be fully end-to-end executed against the user's real Railway environment from this workspace because the Railway MySQL credentials, Node.js runtime, DNS, SSL, and production environment variables are not available here. Therefore this report does **not** claim that the live database connection, live SMTP, live Sentry, live CDN, DNS, or live Railway deployment have already been tested.
 
-After Hostinger deployment, verify `/api/health`, the temporary Hostinger URL, the custom domain, Admin login, contact enquiry storage, and product upload before considering the deployment complete.
+After Railway deployment, verify `/api/health`, the temporary Railway URL, the custom domain, Admin login, contact enquiry storage, and product upload before considering the deployment complete.

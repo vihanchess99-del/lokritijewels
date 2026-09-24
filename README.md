@@ -101,7 +101,7 @@ Admin uploads are automatically:
 3. converted to WebP
 4. stored with long-lived cache headers
 
-Local storage is the default for a single Hostinger app. S3-compatible storage can be enabled for shared product media when horizontal scaling is required.
+Local storage is suitable for a single Railway instance only when a Railway Volume is attached. S3-compatible storage can be enabled for shared product media when horizontal scaling is required.
 
 ## SEO
 
@@ -135,7 +135,7 @@ Domain: `https://lokritijewels.com`
 
 ## Deployment
 
-See `DEPLOYMENT.md` for Hostinger Node.js + MySQL setup.
+See `DEPLOYMENT.md` for Railway Node.js + MySQL setup.
 
 ### Install
 
@@ -151,13 +151,13 @@ npm start
 
 ### Environment
 
-Copy `.env.example` values into Hostinger Environment Variables.
+Copy the relevant `.env.example` values into Railway Variables.
 
 ## Engineering notes
 
 This application is intentionally designed so that the Node.js process does not depend on an application-local SQLite database. Product/enquiry state lives in MySQL, which is a better base for backups and future scaling.
 
-True multi-instance scaling for product media requires shared object storage. Hostinger/CDN can cache public assets, but this package does not claim unlimited automatic horizontal autoscaling from the application itself.
+True multi-instance scaling for product media requires shared object storage. Railway can cache/serve public assets through the application, but this package does not claim unlimited automatic horizontal autoscaling from the application itself.
 
 For a larger operation, add staging, Git-based deployment, external media storage, error monitoring, uptime monitoring, 2FA and centralized logs.
 
