@@ -1,0 +1,65 @@
+# ─────────────────────────────────────────────────────────────────
+# LOKRITI JEWELS — Railway Environment Variables
+# Copy every line below into Railway → your app → Variables tab.
+# Do NOT upload this file to GitHub. Fill in the values first.
+# ─────────────────────────────────────────────────────────────────
+
+# ── Core ──────────────────────────────────────────────────────────
+NODE_ENV=production
+# Railway sets PORT automatically. Do NOT set it yourself.
+
+# Set this to your Railway app URL AFTER first deploy
+# e.g.  https://lokriti-jewels-production.up.railway.app
+# Change it to https://lokritijewels.com when you go live on Hostinger.
+PUBLIC_BASE_URL=https://YOUR-APP-NAME.up.railway.app
+PRIMARY_HOST=YOUR-APP-NAME.up.railway.app
+
+TRUST_PROXY=1
+
+# ── Database (copy from Railway MySQL service → Variables tab) ────
+# Railway auto-fills these if you link the MySQL service to this app.
+# If not auto-filled, copy them manually from the MySQL service.
+DB_HOST=          # e.g. monorail.proxy.rlwy.net
+DB_PORT=3306
+DB_NAME=          # e.g. railway
+DB_USER=          # e.g. root
+DB_PASSWORD=      # long string Railway generated
+DB_POOL_SIZE=5
+DB_SSL=true
+DB_SSL_REJECT_UNAUTHORIZED=false
+
+# ── Admin login ───────────────────────────────────────────────────
+ADMIN_EMAIL=admin@lokritijewels.com
+
+# Generate this hash by running on your own computer:
+#   node generate-admin-hash.mjs "YourStrongPassword"
+# Then paste the result here (it starts with $2b$)
+ADMIN_PASSWORD_HASH=
+
+# ── Security secrets (REQUIRED — server will not start without these) ──
+# Generate two separate long random strings (32+ characters each).
+# Use: https://www.lastpass.com/features/password-generator
+# or any password generator set to 40+ characters.
+JWT_SECRET=
+RATE_LIMIT_SECRET=
+
+# ── File uploads ──────────────────────────────────────────────────
+# Railway's filesystem resets on every deploy.
+# For the test run this is fine — uploaded product images will be lost on redeploy.
+# On real Hostinger this is not an issue (persistent disk).
+STORAGE_DRIVER=local
+
+# ── Optional: email notifications for enquiries ───────────────────
+# Leave blank to skip. Enquiries always save to MySQL regardless.
+SMTP_HOST=
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=
+SMTP_PASS=
+SMTP_FROM=Lokriti Jewels <no-reply@lokritijewels.com>
+NOTIFY_EMAIL=Lokritijewels@gmail.com
+
+# ── Optional: analytics ───────────────────────────────────────────
+# Leave blank to disable both.
+GA4_ID=
+META_PIXEL_ID=
